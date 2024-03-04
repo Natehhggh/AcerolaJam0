@@ -1,43 +1,90 @@
+#include <math.h>
 #include <stdio.h>
 #include "raylib.h"
+#include "raymath.h"
 
 Camera3D camera = {0};
-Vector3 playerPosition = {0,0,0};
+
+
+struct Player {
+    Vector3 position;
+    Vector3 rotation;
+    Vector3 scale;
+};
 
 void initCamera(){
-    camera.position = (Vector3){2.5f, 2.5f,3.0f};
-    camera.target = (Vector3){0.0f, 0.0f, 0.7f};
+    camera.position = (Vector3){-3.0f, 2.5f,0.0f};
     camera.up = (Vector3){0.0f,1.0f,0.0f};
     camera.fovy = 65.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 }
 
+Vector3 cameraOffset = {0};
+
+struct Player player = {
+    .position = {0.0f,0.0f,0.0f},
+    .rotation = {0.0f,0.0f,0.0f},
+    .scale = {1.5f,1.0f,1.0f}
+};
 
 
-
-int main() {
+void InitScene(){
     InitWindow(800,800,"Jam Game");
-
     SetTargetFPS(60);
     initCamera();
+    cameraOffset = Vector3Subtract(player.position, camera.position);
+}
 
-    while (!WindowShouldClose())
+void DrawScene(){
+    BeginDrawing();
     {
-
-        BeginDrawing();
 
         ClearBackground(RAYWHITE);
 
         BeginMode3D(camera);
+        {
+            DrawCubeV(player.position, player.scale, BLUE);
 
-        DrawCube(playerPosition, 1.0f,1.0f,1.0f, BLUE);
-
-        DrawGrid(10,1.0f);
+            DrawGrid(10,1.0f);
+        }
         EndMode3D();
-
         DrawFPS(10,10);
-        EndDrawing();
+    }
+    EndDrawing();
 
+}
+            
+
+int main()
+{
+    InitScene();
+
+    while(!WindowShouldClose())
+    {
+        Vector3 playerInputDir = {0.0f,0.0f,0.0f};
+        if(IsKeyDown(KEY_W)){
+            playerInputDir.x = 1.0f;
+        }
+        if(IsKeyDown(KEY_A)){
+            playerInputDir.z = -1.0f;
+        }
+        if(IsKeyDown(KEY_S)){
+            playerInputDir.x = -1.0f;
+        }
+        if(IsKeyDown(KEY_D)){
+            playerInputDir.z = 1.0f;
+        }
+
+
+
+        float playerSpeed = 10.0f * GetFrameTime(); 
+        playerInputDir = Vector3Normalize(playerInputDir);
+        playerInputDir = Vector3Scale(playerInputDir, playerSpeed);
+        player.position = Vector3Add(playerInputDir, player.position);
+        camera.position = Vector3Add(camera.position, playerInputDir);
+
+        camera.target = player.position;
+        DrawScene();
     }
 
 
