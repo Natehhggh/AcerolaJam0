@@ -1,5 +1,3 @@
-#include <math.h>
-#include <stdio.h>
 #include "raylib.h"
 #include "raymath.h"
 
@@ -32,7 +30,7 @@ void InitScene(){
     InitWindow(800,800,"Jam Game");
     SetTargetFPS(60);
     initCamera();
-    cameraOffset = Vector3Subtract(player.position, camera.position);
+    cameraOffset = Vector3Subtract(camera.position,player.position);
 }
 
 void DrawScene(){
@@ -81,7 +79,7 @@ int main()
         playerInputDir = Vector3Normalize(playerInputDir);
         playerInputDir = Vector3Scale(playerInputDir, playerSpeed);
         player.position = Vector3Add(playerInputDir, player.position);
-        camera.position = Vector3Add(camera.position, playerInputDir);
+        camera.position = Vector3Add(player.position, cameraOffset);
 
         camera.target = player.position;
         DrawScene();
