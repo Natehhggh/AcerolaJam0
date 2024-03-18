@@ -2,16 +2,19 @@
 #include "raymath.h"
 #include <stdint.h>
 #include <string.h>
-//#include "player.c"
 
+
+#define MAX_ENTITIES 100
+
+enum shapeType {
+    Cube,
+    Sphere,
+    Cylinder,
+    Capsule,
+    Plane
+};
 
 //TODO: Move structs to header
-struct transform {
-    int8_t entityId;
-    Vector3 position;
-    Vector3 rotation;
-    Vector3 scale;
-};
 
 struct trackingCamera{
     int8_t transformId;
@@ -22,8 +25,18 @@ struct trackingCamera{
 
 struct entity{
     int8_t id;
+    bool isActive;
     char debugName[10];
 };
+
+//-- Components --
+struct transform {
+    int8_t entityId;
+    Vector3 position;
+    Vector3 rotation;
+    Vector3 scale;
+};
+
 
 struct entityInput{
     int8_t entityId;
@@ -31,9 +44,17 @@ struct entityInput{
 };
 
 
+struct shapeRender{
+    int8_t entityId;
+    int8_t transformId;
+    enum shapeType shape;
+};
+
+
 //-- Objects --
-struct entity entities[100];
-struct transform transforms[100];
+struct entity entities[MAX_ENTITIES];
+struct transform transforms[MAX_ENTITIES];
+struct shapeRender shapeRenders[MAX_ENTITIES];
 struct trackingCamera camera = {0};
 struct entityInput input = {0};
 
@@ -57,9 +78,17 @@ struct trackingCamera updateTrackingCamera(struct trackingCamera camera){
 
 
 
+void initPlayer(){
+
+}
+
+
+
+
 void initEntities(){
 
     entities[0].id = 0;
+    entities[0].isActive = true;
     strcpy(entities[0].debugName, "Player");
     
     transforms[0].position = (Vector3){0.0f,0.0f,0.0f};
@@ -122,8 +151,7 @@ void HandleInput(struct entityInput playerInput){
 
         playerInputDir = Vector3Normalize(playerInputDir);
         playerInputDir = Vector3Scale(playerInputDir, playerSpeed);
-        transforms[playerInput.transformId].position = Vector3Add(
-                playerInputDir, transforms[playerInput.transformId].position);
+        transforms[playerInput.transformId].position = Vector3Add(playerInputDir, transforms[playerInput.transformId].position);
 
 }
 
