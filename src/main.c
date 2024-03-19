@@ -4,7 +4,13 @@
 #include <string.h>
 
 
-#define MAX_ENTITIES 100
+#define MAX_ENTITIES 10
+
+
+//FPS Notes:
+//white screen, ~14-15kfps
+//Initial ECS , ~13kfps
+
 
 enum shapeType {
     Cube,
@@ -25,7 +31,6 @@ struct trackingCamera{
 
 struct entity{
     int8_t id;
-    bool isActive;
     char debugName[10];
 };
 
@@ -48,6 +53,7 @@ struct shapeRender{
     int8_t entityId;
     int8_t transformId;
     enum shapeType shape;
+    bool isActive;
 };
 
 
@@ -88,13 +94,16 @@ void initPlayer(){
 void initEntities(){
 
     entities[0].id = 0;
-    entities[0].isActive = true;
     strcpy(entities[0].debugName, "Player");
     
     transforms[0].position = (Vector3){0.0f,0.0f,0.0f};
     transforms[0].rotation = (Vector3){0.0f,0.0f,0.0f};
     transforms[0].scale = (Vector3){2.5f,1.0f,1.0f};
     transforms[0].entityId = 0;
+    shapeRenders[0].shape = Cube;
+    shapeRenders[0].transformId = 0;
+    shapeRenders[0].entityId = transforms[shapeRenders[0].transformId].entityId;
+    shapeRenders[0].isActive = true;
     
     input.transformId = 0;
     input.entityId = transforms[input.transformId].entityId;
@@ -103,12 +112,35 @@ void initEntities(){
 
 void InitScene(){
     InitWindow(800,800,"Jam Game");
-    SetTargetFPS(60);
+//    SetTargetFPS(60);
     initEntities();
     initCamera();
 }
 
 
+
+void DrawShapes(){
+    for(int8_t i = 0; i < MAX_ENTITIES; ++i){
+        if(shapeRenders[i].isActive){
+            switch(shapeRenders[i].shape){
+                case Cube:
+                    DrawCubeV(transforms[shapeRenders[i].transformId].position, transforms[shapeRenders[i].transformId].scale, BLUE);
+                    break;
+                case Sphere:
+                    DrawSphere(transforms[shapeRenders[i].transformId].position, transforms[shapeRenders[i].transformId].scale.x, RED);
+                    break;
+                case Cylinder:
+                    break;
+                case Capsule:
+                    break;
+                case Plane:
+                    DrawPlane(transforms[shapeRenders[i].transformId].position,
+                            (Vector2){transforms[shapeRenders[i].transformId].scale.x,transforms[shapeRenders[i].transformId].scale.z}, RED);
+                    break;
+            }
+        }
+    }
+}
 
 void DrawScene(){
     BeginDrawing();
@@ -119,11 +151,20 @@ void DrawScene(){
         BeginMode3D(camera.camera);
         {
             //TODO: Render struct 
-            DrawCubeV(transforms[0].position, transforms[0].scale, BLUE);
-
+            DrawShapes();
             DrawGrid(10,1.0f);
         }
         EndMode3D();
+        DrawFPS(10,10);
+    }
+    EndDrawing();
+
+}
+
+void DrawBlankScene(){
+    BeginDrawing();
+    {
+        ClearBackground(RAYWHITE);
         DrawFPS(10,10);
     }
     EndDrawing();
@@ -141,7 +182,6 @@ void HandleInput(struct entityInput playerInput){
         if(IsKeyDown(KEY_A)){
             playerInputDir.z = -1.0f;
         }
-        //camera.position = Vector3Add(camera.position, playerInputDir);
         if(IsKeyDown(KEY_S)){
             playerInputDir.x = -1.0f;
         }
@@ -156,19 +196,26 @@ void HandleInput(struct entityInput playerInput){
 }
 
 
-int main()
-{
 
-    InitScene();
-
+void GameLoop(){
     while(!WindowShouldClose())
     {
         HandleInput(input);
         camera = updateTrackingCamera(camera);
         DrawScene();
     }
+}
 
-
+void EmptyGameLoop(){
+    while(!WindowShouldClose())
+    {
+        DrawBlankScene();
+    }
+}
+int main()
+{
+    InitScene();
+    GameLoop();
     return 0;
 }
 

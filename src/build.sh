@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc main.c -lraylib -lm -o ../game
+gcc -O0 main.c -lraylib -lm -o ../game
