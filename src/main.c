@@ -2,9 +2,7 @@
 #include "raymath.h"
 #include <stdint.h>
 #include <string.h>
-
-
-#define MAX_ENTITIES 100
+#include "core.h"
 
 
 //FPS Notes:
@@ -12,51 +10,11 @@
 //Initial ECS , ~13kfps
 
 
-enum shapeType {
-    Cube,
-    Sphere,
-    Cylinder,
-    Capsule,
-    Plane
-};
 
-//TODO: Move structs to header
+#define MAX_ENTITIES 100
+
 //TODO: get component by Id methods for camera and controllers
 //TODO: sort entities by active/alive
-//TODO: swap bools to mask flags
-struct trackingCamera{
-    int8_t transformId;
-    Camera3D camera;
-    Vector3 offset;
-};
-
-
-struct entity{
-    int8_t id;
-    char debugName[10];
-};
-
-//-- Components --
-struct transform {
-    int8_t entityId;
-    Vector3 position;
-    Vector3 rotation;
-    Vector3 scale;
-};
-
-
-struct entityInput{
-    int8_t entityId;
-    int8_t transformId;
-};
-
-
-struct shapeRender{
-    int8_t entityId;
-    int8_t transformId;
-    enum shapeType shape;
-    bool isActive;
-};
 
 
 //-- Objects --
@@ -132,7 +90,6 @@ void releaseEntity(int8_t entityId){
             shapeRenders[i].isActive = false;
         }
     }
-
 }
 
 
