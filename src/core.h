@@ -14,12 +14,6 @@ enum shapeType {
     Plane
 };
 
-struct trackingCamera{
-    int8_t transformId;
-    Camera3D camera;
-    Vector3 offset;
-};
-
 
 struct entity{
     int8_t id;

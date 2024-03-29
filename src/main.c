@@ -3,12 +3,12 @@
 #include <stdint.h>
 #include <string.h>
 #include "core.h"
+#include "camera.c"
 
 
 //FPS Notes:
 //white screen, ~14-15kfps
 //Initial ECS , ~13kfps
-
 
 
 #define MAX_ENTITIES 100
@@ -21,7 +21,7 @@
 struct entity entities[MAX_ENTITIES];
 struct transform transforms[MAX_ENTITIES];
 struct shapeRender shapeRenders[MAX_ENTITIES];
-struct trackingCamera camera = {0};
+struct thirdPersonCamera camera = {0};
 struct entityInput input = {0};
 
 
@@ -35,8 +35,8 @@ void initCamera(int8_t transformId){
     camera.offset = Vector3Subtract(camera.camera.position, transforms[camera.transformId].position);
 }
 
-
-struct trackingCamera updateTrackingCamera(struct trackingCamera camera){
+//TODO: pass transform, and move to camera file
+struct thirdPersonCamera updateCamera(struct thirdPersonCamera camera){
     camera.camera.position = Vector3Add(transforms[camera.transformId].position, camera.offset);
     camera.camera.target = transforms[camera.transformId].position;
     return camera;
@@ -127,7 +127,7 @@ void InitScene(){
 }
 
 
-
+//TODO: if I care to, make these more consistant in what values map to what
 void DrawShapes(){
     for(int8_t i = 0; i < MAX_ENTITIES; ++i){
         if(shapeRenders[i].isActive){
@@ -209,7 +209,7 @@ void GameLoop(){
     while(!WindowShouldClose())
     {
         HandleInput(input);
-        camera = updateTrackingCamera(camera);
+        camera = updateCamera(camera);
         DrawScene();
     }
 }
