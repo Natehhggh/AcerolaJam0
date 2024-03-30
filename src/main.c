@@ -18,29 +18,11 @@
 
 
 //-- Objects --
-struct entity entities[MAX_ENTITIES];
-struct transform transforms[MAX_ENTITIES];
-struct shapeRender shapeRenders[MAX_ENTITIES];
-struct thirdPersonCamera camera = {0};
-struct entityInput input = {0};
-
-
-//Good Enough, just assuming I have 1 camera for now, and it's what it is
-void initCamera(int8_t transformId){
-    camera.camera.position = (Vector3){-3.0f, 2.5f,0.0f};
-    camera.camera.up = (Vector3){0.0f,1.0f,0.0f};
-    camera.camera.fovy = 65.0f;
-    camera.camera.projection = CAMERA_PERSPECTIVE;
-    camera.transformId = transformId;
-    camera.offset = Vector3Subtract(camera.camera.position, transforms[camera.transformId].position);
-}
-
-//TODO: pass transform, and move to camera file
-struct thirdPersonCamera updateCamera(struct thirdPersonCamera camera){
-    camera.camera.position = Vector3Add(transforms[camera.transformId].position, camera.offset);
-    camera.camera.target = transforms[camera.transformId].position;
-    return camera;
-}
+entity entities[MAX_ENTITIES];
+transform transforms[MAX_ENTITIES];
+shapeRender shapeRenders[MAX_ENTITIES];
+thirdPersonCamera camera = {0};
+entityInput input = {0};
 
 int8_t newEntity(char name[10]){
     int8_t i = 0;
@@ -65,7 +47,7 @@ int8_t newTransform(int8_t entityID, Vector3 position, Vector3 rotation, Vector3
     return i;
 }
 
-int8_t newShapeRender(int8_t entityId, int8_t transformId, enum shapeType shape, bool isActive){
+int8_t newShapeRender(int8_t entityId, int8_t transformId, shapeType shape, bool isActive){
     int8_t i = 0;
     while(shapeRenders[i].transformId < 0){
         ++i;
@@ -110,7 +92,7 @@ void initPlayer(){
     
     input.transformId = transformId;
     input.entityId = transforms[input.transformId].entityId;
-    initCamera(transformId);
+    initCamera(&camera, transformId, transforms[transformId]);
 }
 
 void initEntities(){
@@ -127,6 +109,7 @@ void InitScene(){
 }
 
 
+//Might be good for debugging uses, figure it out later
 //TODO: if I care to, make these more consistant in what values map to what
 void DrawShapes(){
     for(int8_t i = 0; i < MAX_ENTITIES; ++i){
@@ -180,7 +163,7 @@ void DrawBlankScene(){
 
 }
 
-void HandleInput(struct entityInput playerInput){
+void HandleInput(entityInput playerInput){
     
         float playerSpeed = 10.0f * GetFrameTime(); 
         Vector3 playerInputDir = {0.0f,0.0f,0.0f};
@@ -209,7 +192,8 @@ void GameLoop(){
     while(!WindowShouldClose())
     {
         HandleInput(input);
-        camera = updateCamera(camera);
+        transform cameraTarget = transforms[camera.transformId];
+        camera = updateCamera(camera, cameraTarget);
         DrawScene();
     }
 }
