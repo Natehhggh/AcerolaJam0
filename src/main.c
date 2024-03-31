@@ -26,7 +26,7 @@ entityInput input = {0};
 
 int8_t newEntity(char name[10]){
     int8_t i = 0;
-    while(entities[i].id < 0){
+    while(!entities[i].id < 0){
         ++i;
     }
     entities[i].id = i;
@@ -36,7 +36,7 @@ int8_t newEntity(char name[10]){
 
 int8_t newTransform(int8_t entityID, Vector3 position, Vector3 rotation, Vector3 scale){
     int8_t i = 0;
-    while(transforms[i].entityId < 0){
+    while(!transforms[i].entityId < 0){
         ++i;
     }
     transforms[i].entityId = entityID;
@@ -49,7 +49,7 @@ int8_t newTransform(int8_t entityID, Vector3 position, Vector3 rotation, Vector3
 
 int8_t newShapeRender(int8_t entityId, int8_t transformId, shapeType shape, bool isActive){
     int8_t i = 0;
-    while(shapeRenders[i].transformId < 0){
+    while(!shapeRenders[i].transformId < 0){
         ++i;
     }
     shapeRenders[i].entityId = entityId;
@@ -103,7 +103,7 @@ void initEntities(){
 }
 
 void InitScene(){
-    InitWindow(800,800,"Jam Game");
+    InitWindow(1200,800,"Jam Game");
 //    SetTargetFPS(60);
     initEntities();
 }
@@ -122,8 +122,10 @@ void DrawShapes(){
                     DrawSphere(transforms[shapeRenders[i].transformId].position, transforms[shapeRenders[i].transformId].scale.x, RED);
                     break;
                 case Cylinder:
+                    DrawCubeV(transforms[shapeRenders[i].transformId].position, transforms[shapeRenders[i].transformId].scale, RED);
                     break;
                 case Capsule:
+                    DrawCubeV(transforms[shapeRenders[i].transformId].position, transforms[shapeRenders[i].transformId].scale, RED);
                     break;
                 case Plane:
                     DrawPlane(transforms[shapeRenders[i].transformId].position,
@@ -147,21 +149,15 @@ void DrawScene(){
             DrawGrid(10,1.0f);
         }
         EndMode3D();
+        transform target = transforms[camera.transformId];
         DrawFPS(10,10);
+        DrawText(TextFormat("Frame time: %01.08f", GetFrameTime()), 10, 30, 20, GREEN);
+        DrawText(TextFormat("CameraTargetID: %02i", camera.transformId), 800, 30, 12, RED);
+        DrawText(TextFormat("Target x: %02.02f y: %02.02f z: %02.02f", target.position.x, target.position.y, target.position.z), 800, 50, 12, RED);
     }
     EndDrawing();
-
 }
 
-void DrawBlankScene(){
-    BeginDrawing();
-    {
-        ClearBackground(RAYWHITE);
-        DrawFPS(10,10);
-    }
-    EndDrawing();
-
-}
 
 void HandleInput(entityInput playerInput){
     
@@ -180,30 +176,23 @@ void HandleInput(entityInput playerInput){
         if(IsKeyDown(KEY_D)){
             playerInputDir.z = 1.0f;
         }
-        playerInputDir = Vector3Normalize(playerInputDir);
+        //playerInputDir = Vector3Normalize(playerInputDir);
         playerInputDir = Vector3Scale(playerInputDir, playerSpeed);
         transforms[playerInput.transformId].position = Vector3Add(playerInputDir, transforms[playerInput.transformId].position);
+        //transforms[playerInput.transformId].position = Vector3Add(transforms[playerInput.transformId].position, playerInputDir);
 
 }
-
-
 
 void GameLoop(){
     while(!WindowShouldClose())
     {
         HandleInput(input);
         transform cameraTarget = transforms[camera.transformId];
-        camera = updateCamera(camera, cameraTarget);
+        updateCamera(&camera, cameraTarget);
         DrawScene();
     }
 }
 
-void EmptyGameLoop(){
-    while(!WindowShouldClose())
-    {
-        DrawBlankScene();
-    }
-}
 int main()
 {
     InitScene();

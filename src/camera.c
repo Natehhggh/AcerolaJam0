@@ -12,11 +12,10 @@ typedef struct thirdPersonCamera{
     Vector3 offset;
 } thirdPersonCamera;
 
-thirdPersonCamera updateCamera(thirdPersonCamera camera, transform targetTransform){
+void updateCamera(thirdPersonCamera* camera, transform targetTransform){
     //Vector3 IdealOffset = 
-    camera.camera.position = Vector3Add(targetTransform.position, camera.offset);
-    camera.camera.target = targetTransform.position;
-    return camera;
+    camera->camera.position = Vector3Add(targetTransform.position, camera->offset);
+    camera->camera.target = targetTransform.position;
 }
 
 //TODO: refactor, moving here to clean up main
