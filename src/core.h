@@ -35,12 +35,12 @@ typedef struct entityInput{
 } entityInput;
 
 
-typedef struct shapeRender{
+typedef struct primativeRenderer{
     int8_t entityId;
     int8_t transformId;
     enum shapeType shape;
     bool isActive;
-} shapeRender;
+} primativeRenderer;
 
 
 
