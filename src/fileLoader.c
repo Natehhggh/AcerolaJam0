@@ -1,11 +1,12 @@
 #include "jsonParser.h"
+#include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "core.h"
+#include "entity.c"
 
 
-
+//TODO: Move to jsonParser maybe, feels out of place with my garbage?
 char* readEntireFile(char* fileName){
 // https://stackoverflow.com/questions/9069205/how-do-i-free-memory-in-c
     FILE *f = fopen(fileName, "rb");
@@ -21,17 +22,41 @@ char* readEntireFile(char* fileName){
     return string;
 }
 
+
+//TODO: Cleanup File, hard to be sure it even works
 void loadEntitiesFromJson(multitypearray  entitiesJson){
     
     for(int i = 0; i < entitiesJson.objectCount; i++){
-        if(strcmp(entitiesJson.objectList[i].keyList[0].value, "transform")) {
-             
-        }
-        else if(strcmp(entitiesJson.objectList[i].keyList[0].value, "primativeRenderer")) {
-             
-        }
-        else if(strcmp(entitiesJson.objectList[i].keyList[0].value, "playerInput")) {
-             
+
+        int entityId = newEntity(entitiesJson.objectList[i].keyList[0].value);
+        multitypearray components = entitiesJson.objectList[i].subArrayList[0];
+
+        //TODO: Refactor a bit or hide away
+        //TODO: Reorder if needed
+        for(int j = 0; j < components.objectCount; j++){
+            if(strcmp(components.objectList[i].keyList[0].value, "transform")) {
+                Vector3 position = (Vector3){
+                    atof(components.objectList[i].subObjects[0].keyList[0].value),
+                    atof(components.objectList[i].subObjects[0].keyList[1].value),
+                    atof(components.objectList[i].subObjects[0].keyList[2].value)};
+                Vector3 rotation = (Vector3){
+                    atof(components.objectList[i].subObjects[1].keyList[0].value),
+                    atof(components.objectList[i].subObjects[1].keyList[1].value),
+                    atof(components.objectList[i].subObjects[1].keyList[2].value)};
+                Vector3 scale = (Vector3){
+                    atof(components.objectList[i].subObjects[2].keyList[0].value),
+                    atof(components.objectList[i].subObjects[2].keyList[1].value),
+                    atof(components.objectList[i].subObjects[2].keyList[2].value)};
+
+                //TODO: store result somehow?
+                newTransform(entityId, position, rotation, scale);
+            }
+            else if(strcmp(components.objectList[i].keyList[j].value, "primativeRenderer")) {
+                 newPrimativeRenderer(
+            }
+            else if(strcmp(components.objectList[i].keyList[j].value, "playerInput")) {
+                 
+            }
         }
 
     }
