@@ -30,37 +30,47 @@ void loadEntitiesFromJson(multitypearray  entitiesJson){
 
         int entityId = newEntity(entitiesJson.objectList[i].keyList[0].value);
         multitypearray components = entitiesJson.objectList[i].subArrayList[0];
+        int transformId = -1;
 
         //TODO: Refactor a bit or hide away
         //TODO: Reorder if needed
         for(int j = 0; j < components.objectCount; j++){
-            if(strcmp(components.objectList[i].keyList[0].value, "transform")) {
+
+            json_object component = components.objectList[j];
+            if(strcmp(component.keyList[0].value, "transform")) {
                 Vector3 position = (Vector3){
-                    atof(components.objectList[i].subObjects[0].keyList[0].value),
-                    atof(components.objectList[i].subObjects[0].keyList[1].value),
-                    atof(components.objectList[i].subObjects[0].keyList[2].value)};
+                    atof(component.subObjects[0].keyList[0].value),
+                    atof(component.subObjects[0].keyList[1].value),
+                    atof(component.subObjects[0].keyList[2].value)};
                 Vector3 rotation = (Vector3){
-                    atof(components.objectList[i].subObjects[1].keyList[0].value),
-                    atof(components.objectList[i].subObjects[1].keyList[1].value),
-                    atof(components.objectList[i].subObjects[1].keyList[2].value)};
+                    atof(component.subObjects[1].keyList[0].value),
+                    atof(component.subObjects[1].keyList[1].value),
+                    atof(component.subObjects[1].keyList[2].value)};
                 Vector3 scale = (Vector3){
-                    atof(components.objectList[i].subObjects[2].keyList[0].value),
-                    atof(components.objectList[i].subObjects[2].keyList[1].value),
-                    atof(components.objectList[i].subObjects[2].keyList[2].value)};
+                    atof(component.subObjects[2].keyList[0].value),
+                    atof(component.subObjects[2].keyList[1].value),
+                    atof(component.subObjects[2].keyList[2].value)};
 
                 //TODO: store result somehow?
                 newTransform(entityId, position, rotation, scale);
             }
-            else if(strcmp(components.objectList[i].keyList[j].value, "primativeRenderer")) {
-                 newPrimativeRenderer(
+            else if(strcmp(component.keyList[0].value, "primativeRenderer")) {
+                newPrimativeRenderer
+                    (
+                        entityId,
+                        transformId,
+                        component.subObjects[0].keyList[0].value, //shapeStr
+                        component.subObjects[0].keyList[1].value // isActive
+                    );
             }
-            else if(strcmp(components.objectList[i].keyList[j].value, "playerInput")) {
+            else if(strcmp(component.keyList[0].value, "playerInput")) {
                  
             }
         }
-
-    }
-
+    } 
+// Lunix Raid Times
+//monday tuesday -> 1:30pm
+//another day -> 7:30pm
 
 }
 
