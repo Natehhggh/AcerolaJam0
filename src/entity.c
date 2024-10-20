@@ -1,7 +1,7 @@
 #ifndef __NATE_ENTITY__
 #define __NATE_ENTITY__
 
-#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include "raylib.h"
@@ -18,71 +18,50 @@
 //-- Objects --
 entity entities[MAX_ENTITIES];
 thirdPersonCamera camera = {0};
-entityInput input = {0};
 
-int8_t newEntity(char name[10], Vector3 position, Vector3 rotation, Vector3 scale, int char* shapeStr, bool isActive){
-    int8_t i = 0;
-    while(!(entities[i].id < 0)){
-        ++i;
-    }
-    entities[i].id = i;
-    strcpy(entities[i].debugName, name);
-    transforms[i].position = position;
-    transforms[i].rotation = rotation;
-    transforms[i].scale = scale;
-    shapeType shape;
-    if(strcmp(shapeStr,"cube")){
-        shape = Cube;
-    }
-    else if(strcmp(shapeStr,"cylinder")){
-        shape = Cylinder;
-    }
+entity* newEntity(){
 
-    else if(strcmp(shapeStr,"capsule")){
-        shape = Capsule;
+    entity* newEntity = NULL;  
+    for(int i = 0; i < MAX_ENTITIES; i++){
+        if(entities[i].flags & Free){
+            entities[i].flags |= Free;
+            newEntity = &entities[i];
+            break;
+        }
     }
-    else if(strcmp(shapeStr,"plane")){
-        shape = Plane;
-    }
-
-    primativeRenderers[i].shape = shape;
-    primativeRenderers[i].isActive = isActive;
-    return i;
+    return newEntity;
 }
 
-void releaseEntity(int8_t entityId){
-    entities[entityId].id = -128;
-    for(int i = 0; i < MAX_ENTITIES; ++i){
-        if(transforms[i].entityId == entityId){
-        transforms[i].entityId = -127;
-        }
-        if(primativeRenderers[i].entityId == entityId){
-            primativeRenderers[i].isActive = false;
-        }
-    }
+void freeEntity(entity* entity){
+    entity->flags = 0;
 }
 void setDefaultData(){
-    //Set useful data to unlinked negative values;
     for(int i = 0; i < MAX_ENTITIES; ++i){
-        entities[i].id = -128;
+        entities[i].flags = Free;
     }
 }
 
+//TODO: Move to player file
 void initPlayer(){
-    int8_t entityId = newEntity("Player");
-    int8_t transformId = newTransform(entityId, (Vector3){0.0f,0.0f,0.0f}, (Vector3){0.0f,0.0f,0.0f}, (Vector3){2.5f,1.0f,1.0f});
-    int8_t shapeId = newPrimativeRenderer(entityId, transformId, "cube", true);
+    entity* playerEntity = newEntity();
+    playerEntity->position = (Vector3){0.0f,0.0f,0.0f};
+    playerEntity->rotation = (Vector3){0.0f,0.0f,0.0f};
+    playerEntity->scale = (Vector3){2.5f,1.0f,1.0f};
+    playerEntity->shape = Cube;
+    playerEntity->flags = playerEntity->flags | ShapeRendered;
+    playerEntity->flags = playerEntity->flags | Active;
+    playerEntity->flags = playerEntity->flags | PlayerControlled;
     
-    input.transformId = transformId;
-    input.entityId = transforms[input.transformId].entityId;
-    initCamera(&camera, transformId, transforms[transformId]);
+    
+    initCamera(&camera, playerEntity);
 }
 
 void initEntities(){
 
     setDefaultData();
+    printf("Defaults set\n");
     initPlayer();
-
+    printf("Player Init\n");
 }
 
 
