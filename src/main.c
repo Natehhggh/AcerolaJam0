@@ -1,31 +1,27 @@
 #include <stdint.h>
 #include <unistd.h>
 #include "raylib.h"
-#include "raymath.h"
 #include "core.h"
 #include "camera.c"
 #include "rlights.h"
-#include "entity.c"
-#include <stdio.h>
+#include "player.c"
+#include "scene.c"
 
 //FPS Notes:
 //white screen, ~14-15kfps
 //Initial ECS , ~13kfps
 //flag ~8kfps
 
+//TODO: Fix name convention, not sure what im doing here, it's all over the place
 
-
-void InitScene(){
-    InitWindow(1200,800,"Jam Game");
-//    SetTargetFPS(60);
-    printf("Init Scene\n");
-    initEntities();
-    printf("Setup complete\n");
+void setup(){
+    InitWindow(screenWidth,screenHeight,"Jam Game");
+    //SetTargetFPS(60);
+    initScene();
 }
 
 
-//Might be good for debugging uses, figure it out later
-//TODO: if I care to, make these more consistant in what values map to what
+//TODO: move to some rendering file, dont want to look at rendering logic here
 void drawPrimativeShapes(){
     for(int8_t i = 0; i < MAX_ENTITIES; ++i){
         if(entities[i].flags | Active && entities[i].flags | ShapeRendered){
@@ -51,69 +47,81 @@ void drawPrimativeShapes(){
     }
 }
 
+//TODO: move to some rendering file, dont want to look at rendering logic here
+void drawSprites(){
+    for(int8_t i = 0; i < MAX_ENTITIES; ++i){
+        if(entities[i].flags | Active && entities[i].flags | SpriteRendered){
+            DrawTextureRec(entities[i].spritesheet, entities[i].frameRec, (Vector2){entities[i].position.x, entities[i].position.y} , WHITE);
+        }
+    }
+}
+
+//TODO: rework from frames/frame to delta time
+void updateSprites(){
+    for(int8_t i = 0; i < MAX_ENTITIES; ++i){
+        if(entities[i].flags | Active && entities[i].flags | SpriteRendered){
+            entities[i].frameCounter++;
+            if(entities[i].frameCounter >= entities[i].frameRate){
+                entities[i].frameCounter = 0;
+                //Why is this not working?
+                //entities[i].currentFrame = (entities[i].currentFrame + 1) % entities[i].spriteFrames;
+                entities[i].currentFrame++;
+                if(entities[i].currentFrame >= entities[i].spriteFrames) entities[i].currentFrame = 0;
+
+                entities[i].frameRec.x = (float)entities[i].currentFrame * (float)entities[i].spritesheet.width/entities[i].spriteFrames;
+            }
+        }
+    }
+}
+
 void DrawScene(){
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
+        
+        if(rendering == _2d){
+            BeginMode2D(camera2d.camera);
+            {
+                drawSprites();
+            }
 
-        BeginMode3D(camera.camera);
-        {
-            //TODO: Render struct 
-            drawPrimativeShapes();
-            DrawGrid(10,1.0f);
+            EndMode2D();
+        }else{
+            BeginMode3D(camera.camera);
+            {
+                //TODO: Render struct 
+                drawPrimativeShapes();
+                DrawGrid(10,1.0f);
 
+            }
+            EndMode3D();
         }
-        EndMode3D();
+
         entity* target = camera.target;
         DrawFPS(10,10);
         DrawText(TextFormat("Frame time: %02.04f ms", GetFrameTime()* 1000), 10, 30, 20, GREEN);
         DrawText(TextFormat("Target x: %02.02f y: %02.02f z: %02.02f", target->position.x, target->position.y, target->position.z), 800, 50, 12, RED);
+        //DrawText(TextFormat("frame: %02i count: %02i frames: %02i rate: %02i", target->currentFrame, target->frameCounter, target->spriteFrames, target->frameRate), 800, 70, 12, RED);
     }
     EndDrawing();
 }
 
 
-void HandleInput(){
-    
-        float playerSpeed = 10.0f * GetFrameTime(); 
-        Vector3 playerInputDir = {0.0f,0.0f,0.0f};
-
-        if(IsKeyDown(KEY_W)){
-            playerInputDir.x = 1.0f;
-        }
-        if(IsKeyDown(KEY_A)){
-            playerInputDir.z = -1.0f;
-        }
-        if(IsKeyDown(KEY_S)){
-            playerInputDir.x = -1.0f;
-        }
-        if(IsKeyDown(KEY_D)){
-            playerInputDir.z = 1.0f;
-        }
-        //playerInputDir = Vector3Normalize(playerInputDir);
-        playerInputDir = Vector3Scale(playerInputDir, playerSpeed);
-        for(int i = 0; i < MAX_ENTITIES; i++){
-            if(entities[i].flags & Active && entities[i].flags & PlayerControlled){
-                entities[i].position = Vector3Add(playerInputDir, entities[i].position);
-            }
-        }
-        //transforms[playerInput.transformId].position = Vector3Add(transforms[playerInput.transformId].position, playerInputDir);
-
-}
 
 void GameLoop(){
-    printf("Starting Game Loop\n");
     while(!WindowShouldClose())
     {
         HandleInput();
+        updateSprites();
         updateCamera(&camera);
+        //updateCamera2d(&camera2d);
         DrawScene();
     }
 }
 
 int main()
 {
-    InitScene();
+    setup();
     GameLoop();
     return 0;
 }
