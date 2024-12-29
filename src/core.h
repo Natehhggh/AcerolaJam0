@@ -58,11 +58,11 @@ typedef struct {
     enum shapeType shape;
     //TOOD: refactor sprite system
     Texture2D spritesheet;
-    int spriteFrames;
     Rectangle frameRec;
+    int spriteFrames;
     int currentFrame;
-    int frameCounter;
-    int frameRate;
+    float frameTime;
+    float frameTimeAcc;
 } entity;
 
 //TODO: enum for other cameras like first person, just get any camera in here

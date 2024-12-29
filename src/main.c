@@ -6,11 +6,11 @@
 #include "rlights.h"
 #include "player.c"
 #include "scene.c"
+#include <time.h>
 
 //FPS Notes:
 //white screen, ~14-15kfps
-//Initial ECS , ~13kfps
-//flag ~8kfps
+//Initial ECS , ~13kfps flag ~8kfps
 
 //TODO: Fix name convention, not sure what im doing here, it's all over the place
 
@@ -51,18 +51,20 @@ void drawPrimativeShapes(){
 void drawSprites(){
     for(int8_t i = 0; i < MAX_ENTITIES; ++i){
         if(entities[i].flags | Active && entities[i].flags | SpriteRendered){
+            //TODO: use rec extended methods, for scaling
             DrawTextureRec(entities[i].spritesheet, entities[i].frameRec, (Vector2){entities[i].position.x, entities[i].position.y} , WHITE);
         }
     }
 }
 
 //TODO: rework from frames/frame to delta time
-void updateSprites(){
+void updateSprites(float dt){
     for(int8_t i = 0; i < MAX_ENTITIES; ++i){
         if(entities[i].flags | Active && entities[i].flags | SpriteRendered){
-            entities[i].frameCounter++;
-            if(entities[i].frameCounter >= entities[i].frameRate){
-                entities[i].frameCounter = 0;
+            entities[i].frameTimeAcc+= dt;
+
+            if(entities[i].frameTimeAcc >= entities[i].frameTime){
+                entities[i].frameTimeAcc = 0.0f;
                 //Why is this not working?
                 //entities[i].currentFrame = (entities[i].currentFrame + 1) % entities[i].spriteFrames;
                 entities[i].currentFrame++;
@@ -108,15 +110,48 @@ void DrawScene(){
 
 
 
+//TODO: draw scene only on a delta time?
 void GameLoop(){
     while(!WindowShouldClose())
     {
-        HandleInput();
-        updateSprites();
+        float dt = GetFrameTime();
+        HandleInput(dt);
+        updateSprites(dt);
         updateCamera(&camera);
         //updateCamera2d(&camera2d);
         DrawScene();
     }
+}
+//TODO: Do this
+//come back to it, going to pass dt into updates and use that for now
+//https://gafferongames.com/post/fix_your_timestep/
+void GameLoop2(){
+    //clock_t clockOld, timeNew;
+     
+    //double timeOld = time(NULL);
+    double t = 0.0f;
+    double dt = 0.01f;
+    double accumulator = 0.0f;
+    while(!WindowShouldClose())
+    {
+
+        //double timeNew = time(NULL);
+        //double timeSince = timeNew - timeOld;
+        //timeOld = timeNew;
+        //if(timeSince > 0.25){
+         //   timeSince = 0.25;
+        //}
+
+        
+
+        //HandleInput();
+        
+        //updateSprites();
+        //updateCamera(&camera);
+        //updateCamera2d(&camera2d);
+        //DrawScene();
+    }
+
 }
 
 int main()

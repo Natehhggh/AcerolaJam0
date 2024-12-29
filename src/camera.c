@@ -27,7 +27,7 @@ void initCamera(thirdPersonCamera* camera, entity* target){
 }
 
 void initCamera2d(followingCamera* camera, entity* target){
-    camera->camera.zoom = 1.0f;
+    camera->camera.zoom = 4.0f;
     camera->camera.rotation = 0.0f;
     camera->camera.target = (Vector2){target->position.x, target->position.y};
     camera->target = target;
