@@ -27,11 +27,11 @@ void initCamera(thirdPersonCamera* camera, entity* target){
 }
 
 void initCamera2d(followingCamera* camera, entity* target){
-    camera->camera.zoom = 4.0f;
+    camera->camera.zoom = 1.0f;
     camera->camera.rotation = 0.0f;
     camera->camera.target = (Vector2){target->position.x, target->position.y};
     camera->target = target;
-    camera->camera.offset = (Vector2){screenWidth/4.0f, screenHeight/ 4.0f};
+    camera->camera.offset = (Vector2){screenWidth/2.0f, screenHeight/ 2.0f};
 }
 
 

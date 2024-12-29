@@ -11,7 +11,7 @@ void initPlayer(){
     entity* playerEntity = newEntity();
     playerEntity->position = (Vector3){0.0f,0.0f,0.0f};
     playerEntity->rotation = (Vector3){0.0f,0.0f,0.0f};
-    playerEntity->scale = (Vector3){2.5f,1.0f,1.0f};
+    playerEntity->scale = (Vector3){1.0f,1.0f,1.0f};
 
     playerEntity->flags = playerEntity->flags | Active;
     playerEntity->flags = playerEntity->flags | PlayerControlled;
@@ -23,9 +23,11 @@ void initPlayer(){
     playerEntity->currentFrame = 0;
     playerEntity->spriteFrames = 4;
     playerEntity->spritesheet = LoadTexture("../assets/2d/knight/Idle_KG_1.png");
-    playerEntity->frameRec = (Rectangle){0.0f, 0.0f, (float)playerEntity->spritesheet.width / playerEntity->spriteFrames, (float)playerEntity->spritesheet.height };
+    playerEntity->sourceRec = (Rectangle){0.0f, 0.0f, (float)playerEntity->spritesheet.width / playerEntity->spriteFrames, (float)playerEntity->spritesheet.height };
     playerEntity->frameTime = 1 / (float)15;
     playerEntity->frameTimeAcc = 0.0f;
+    playerEntity->spriteHeight = 32.0f;
+    playerEntity->spriteWidth = 50.0f;
 
 
     initCamera(&camera, playerEntity);

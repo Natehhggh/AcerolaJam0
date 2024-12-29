@@ -4,6 +4,10 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#define WORLD_HEIGHT = 20;
+#define WORLD_WIDTH = 20;
+
+
 typedef enum {
     Free = 1 << 0,
     Active = 1 << 1,
@@ -58,12 +62,23 @@ typedef struct {
     enum shapeType shape;
     //TOOD: refactor sprite system
     Texture2D spritesheet;
-    Rectangle frameRec;
+    Rectangle sourceRec;
+    Rectangle spriteRec;
     int spriteFrames;
     int currentFrame;
     float frameTime;
     float frameTimeAcc;
+    float spriteWidth;
+    float spriteHeight;
 } entity;
+
+
+//Why does this struct complain wihtout the world2d name at the start?
+//typedef struct world2d{
+//    int tileSize;
+//    int tiles[];
+
+//} world2d;
 
 //TODO: enum for other cameras like first person, just get any camera in here
 typedef struct thirdPersonCamera{
@@ -83,8 +98,8 @@ entity entities[MAX_ENTITIES];
 thirdPersonCamera camera = {0};
 followingCamera camera2d = {0};
 enum renderMode rendering = _3d;
-int screenHeight = 800;
-int screenWidth = 1200;
+int screenHeight = 720;
+int screenWidth = 1280;
 
 
 #endif
